@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Qarz Daftari Pro — by You</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">₮</div>
+      <div class="brand-text">
+        <div class="brand-title">Qarz Daftari Pro</div>
+        <div class="brand-sub">Offline • LocalStorage • Export/Import • Stats</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button id="btnTheme" class="btn btn-ghost" title="Theme">🌙</button>
+      <button id="btnLock" class="btn btn-ghost" title="Lock">🔒</button>
+      <button id="btnHelp" class="btn btn-ghost" title="Help">❓</button>
+    </div>
+  </header>
+
+  <!-- Lock screen -->
+  <section id="lockScreen" class="lock-screen hidden">
+    <div class="lock-card">
+      <div class="lock-title">🔐 Qarz Daftari Lock</div>
+      <div class="lock-sub">PIN kiriting</div>
+      <input id="pinInput" class="input" type="password" inputmode="numeric" maxlength="6" placeholder="PIN (4-6 raqam)" />
+      <div class="lock-actions">
+        <button id="btnUnlock" class="btn btn-primary">Unlock</button>
+        <button id="btnSetPin" class="btn btn-soft">PIN o‘rnatish</button>
+        <button id="btnRemovePin" class="btn btn-danger">PIN o‘chirish</button>
+      </div>
+      <div class="lock-hint">
+        ⚠️ PIN esdan chiqsa — LocalStorage tozalang (brauzer settings).
+      </div>
+    </div>
+  </section>
+
+  <!-- Main layout -->
+  <main class="container">
+
+    <!-- Left panel -->
+    <aside class="panel panel-left">
+      <div class="panel-header">
+        <div class="panel-title">➕ Yangi yozuv</div>
+        <div class="panel-sub">Qarz berilgan yoki olingan</div>
+      </div>
+
+      <form id="debtForm" class="form">
+        <label class="label">Turi</label>
+        <div class="segmented">
+          <input type="radio" name="type" id="typeGiven" value="given" checked>
+          <label for="typeGiven">Men berdim</label>
+
+          <input type="radio" name="type" id="typeTaken" value="taken">
+          <label for="typeTaken">Men oldim</label>
+        </div>
+
+        <label class="label">Ism / Kim</label>
+        <input id="person" class="input" type="text" placeholder="Masalan: Shaxlo, Doston..." required />
+
+        <label class="label">Telefon (ixtiyoriy)</label>
+        <input id="phone" class="input" type="tel" placeholder="+998 90 123 45 67"/>
+
+        <label class="label">Summa (UZS)</label>
+        <input id="amount" class="input" type="number" min="0" step="100" placeholder="Masalan: 250000" required />
+
+        <label class="label">Sana</label>
+        <input id="date" class="input" type="date" required />
+
+        <label class="label">Muddat (ixtiyoriy)</label>
+        <input id="dueDate" class="input" type="date" />
+
+        <label class="label">Izoh</label>
+        <textarea id="note" class="textarea" placeholder="Izoh yozing... (masalan: 2 haftada qaytaradi)"></textarea>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">✅ Saqlash</button>
+          <button class="btn btn-soft" type="button" id="btnReset">♻️ Tozalash</button>
+        </div>
+      </form>
+
+      <div class="mini-card">
+        <div class="mini-title">⚡ Tez amallar</div>
+        <div class="mini-actions">
+          <button id="btnExport" class="btn btn-ghost">⬇️ Export JSON</button>
+          <button id="btnImport" class="btn btn-ghost">⬆️ Import JSON</button>
+          <input id="importFile" type="file" accept=".json" hidden />
+          <button id="btnCSV" class="btn btn-ghost">📄 Export CSV</button>
+          <button id="btnPrint" class="btn btn-ghost">🖨 Print</button>
+        </div>
+      </div>
+
+      <div class="mini-card">
+        <div class="mini-title">🧹 Cleanup</div>
+        <div class="mini-actions">
+          <button id="btnClearAll" class="btn btn-danger">🗑 Hammasini o‘chirish</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center panel -->
+    <section class="panel panel-center">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">📚 Qarzlar ro‘yxati</div>
+          <div class="panel-sub">Qidiruv, filter, sort, status</div>
+        </div>
+
+        <div class="panel-tools">
+          <select id="sortBy" class="select">
+            <option value="created_desc">Yangi → eski</option>
+            <option value="created_asc">Eski → yangi</option>
+            <option value="amount_desc">Summa: katta → kichik</option>
+            <option value="amount_asc">Summa: kichik → katta</option>
+            <option value="name_asc">Ism: A → Z</option>
+            <option value="name_desc">Ism: Z → A</option>
+          </select>
+
+          <button id="btnAddDemo" class="btn btn-soft" title="Demo">
+            ✨ Demo
+          </button>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input id="search" class="input" type="text" placeholder="🔎 Qidirish: ism, izoh, tel..." />
+
+        <select id="filterType" class="select">
+          <option value="all">Hammasi</option>
+          <option value="given">Men bergan</option>
+          <option value="taken">Men olgan</option>
+        </select>
+
+        <select id="filterStatus" class="select">
+          <option value="all">Status: hammasi</option>
+          <option value="open">Ochiq</option>
+          <option value="paid">To‘langan</option>
+          <option value="overdue">Muddati o‘tgan</option>
+        </select>
+
+        <button id="btnResetFilters" class="btn btn-ghost">♻️ Filter reset</button>
+      </div>
+
+      <div id="list" class="list"></div>
+
+      <div id="emptyState" class="empty hidden">
+        <div class="empty-emoji">📭</div>
+        <div class="empty-title">Hozircha yozuv yo‘q</div>
+        <div class="empty-sub">
+          Chap tomondan qo‘shib boshlang ✅
+        </div>
+      </div>
+    </section>
+
+    <!-- Right panel -->
+    <aside class="panel panel-right">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">📊 Statistika</div>
+          <div class="panel-sub">Umumiy holat</div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="stat-label">Men bergan</div>
+          <div class="stat-value" id="statGiven">0</div>
+          <div class="stat-mini" id="statGivenCount">0 ta</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Men olgan</div>
+          <div class="stat-value" id="statTaken">0</div>
+          <div class="stat-mini" id="statTakenCount">0 ta</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Ochiq qarz</div>
+          <div class="stat-value" id="statOpen">0</div>
+          <div class="stat-mini" id="statOpenCount">0 ta</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Muddati o‘tgan</div>
+          <div class="stat-value" id="statOverdue">0</div>
+          <div class="stat-mini" id="statOverdueCount">0 ta</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">📈 Balans</div>
+        <div class="chart-sub">Berilgan - Olingan</div>
+        <div class="balance" id="balance">0</div>
+        <div class="balance-hint">Musbat bo‘lsa: sizga qarzlar ko‘p</div>
+      </div>
+
+      <div class="top-people">
+        <div class="mini-title">🏆 Eng ko‘p qarzli odamlar</div>
+        <div id="topPeople" class="top-list"></div>
+      </div>
+
+      <div class="footer-note">
+        <div class="footer-title">✅ Tavsiya</div>
+        <div class="footer-sub">
+          “Print” bosib daftar qilib chiqarib olsangiz ham bo‘ladi 😄
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Modals -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-card">
+      <div class="modal-head">
+        <!-- <div class="modal-title" id="modalTitle">Modal</div> -->
+        <button id="btnLock" class="btn btn-ghost" title="Lock">🔒</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot" id="modalFoot"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toastWrap" class="toast-wrap"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
